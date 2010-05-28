@@ -172,7 +172,7 @@ var breakout = (function(){
 			var ballCol = Math.floor( _ball.pos.x / _bricks.width );
 			if ( ballRow < _bricks.rows && ballCol < _bricks.cols && _bricks.tilemap[ballRow][ballCol] == 1 ){
 				_bricks.tilemap[ballRow][ballCol] = 0;
-				this.drawBricks();
+				_bricks.ctx.clearRect( ballCol * _bricks.width, ballRow * _bricks.height, _bricks.width - 1, _bricks.height - 1);
 				_ball.speed.y = -_ball.speed.y;
 			}
 			
