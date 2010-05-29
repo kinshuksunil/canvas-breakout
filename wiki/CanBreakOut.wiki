@@ -1,0 +1,18 @@
+#labels Phase-Requirements
+#This page contains the a brief, todo/feature list for the game
+
+= Can Break Out! =
+Your goal is to break out of the brick walled prison you are in and discover the world outside. Your only companion is the paddle that keeps pushing you back into your fights and saving you from the darkness that is beneath you. You have no other choice but to break out!
+
+
+== ToDo/Features ==
+
+This is just a possible feature outline, most of all of which we will try to implement :) Feel free to jump in and give us a hand, or maybe suggest more
+  * Initial Build, balls, bricks, walls and paddle
+  * Scoring
+  * Levels
+  * Bonuses 
+  * PreGame, and InGame screens(start, pause and options?)
+  * Story, theme and a twist?
+  * Better Graphics
+  * Cleaning up and optimizing code
