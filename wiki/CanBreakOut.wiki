@@ -1,4 +1,4 @@
-#labels Phase-Requirements
+#labels Phase-Requirements,Featured
 #This page contains the a brief, todo/feature list for the game
 
 = Can Break Out! =
