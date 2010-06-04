@@ -10,11 +10,11 @@ var breakout = (function(){
 	var _bricks = null;
 	var _paddle = null;
 	var _ball = null;
-	var _imgBrick = Image();
+	var _imgBrick = new Image();
 	_imgBrick.src = "images/brick.png";
-	var _imgBg = Image();
+	var _imgBg = new Image();
 	_imgBg.src = "images/bg.png";
-	var _imgBall = Image();
+	var _imgBall = new Image();
 	_imgBall.src = "images/ball.png";
 
 	return {
