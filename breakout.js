@@ -10,6 +10,12 @@ var breakout = (function(){
 	var _bricks = null;
 	var _paddle = null;
 	var _ball = null;
+	var _imgBrick = Image();
+	_imgBrick.src = "images/brick.png";
+	var _imgBg = Image();
+	_imgBg.src = "images/bg.png";
+	var _imgBall = Image();
+	_imgBall.src = "images/ball.png";
 
 	return {
 		layers: [],
@@ -74,6 +80,8 @@ var breakout = (function(){
 			var w = _cWidth;
 			var h = _score.height;
 
+			_score.ctx.drawImage(_imgBg,0,0,400,400);	// draw this somewhere else, maybe in its own layer, or have a smaller dirty rect when updating the score
+			
 			_score.ctx.beginPath();
 			_score.ctx.fillStyle = _score.fillStyle;
 				_score.ctx.fillRect( x, y, w, h );
@@ -110,7 +118,7 @@ var breakout = (function(){
 			for ( var x = 0; x < tilemap.length; x++ ){
 				for ( var y = 0; y < tilemap[x].length; y++ ){
 					if ( tilemap[x][y] == 1 ){
-						_bricks.ctx.rect( y * _bricks.width, x * _bricks.height, _bricks.width - 1, _bricks.height - 1);
+						_bricks.ctx.drawImage(_imgBrick, y * _bricks.width, x * _bricks.height, _bricks.width - 1, _bricks.height - 1); // drawing brick from image
 					}
 				}
 			}
@@ -148,15 +156,19 @@ var breakout = (function(){
 		drawBall: function(){
 			var x = _ball.pos.x + _ball.radius;
 			var y = _ball.pos.y + _ball.radius;
+			/*
 			var r = _ball.radius;
 			_ball.ctx.fillStyle = _ball.fillStyle;
 			
 			_ball.ctx.beginPath();
 				_ball.ctx.arc(x, y, r, 0, Math.PI*2, true);
 			_ball.ctx.closePath();
+			*/
 			
 			this.clear(_ball.ctx);
-			_ball.ctx.fill();
+			/* _ball.ctx.fill(); */
+			
+			_ball.ctx.drawImage(_imgBall,x,y);
 		},
 		moveBall: function(){
 			// Calculating the next frame coordinates according to current speed
