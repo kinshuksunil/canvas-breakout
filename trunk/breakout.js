@@ -154,21 +154,12 @@ var breakout = (function(){
 			this.drawBall();
 		},
 		drawBall: function(){
-			var x = _ball.pos.x + _ball.radius;
-			var y = _ball.pos.y + _ball.radius;
-			/*
+			var x = _ball.pos.x;
+			var y = _ball.pos.y;
 			var r = _ball.radius;
-			_ball.ctx.fillStyle = _ball.fillStyle;
-			
-			_ball.ctx.beginPath();
-				_ball.ctx.arc(x, y, r, 0, Math.PI*2, true);
-			_ball.ctx.closePath();
-			*/
 			
 			this.clear(_ball.ctx);
-			/* _ball.ctx.fill(); */
-			
-			_ball.ctx.drawImage(_imgBall,x,y);
+			_ball.ctx.drawImage(_imgBall, x, y, r*2, r*2);
 		},
 		moveBall: function(){
 			// Calculating the next frame coordinates according to current speed
