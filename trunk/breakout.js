@@ -10,55 +10,121 @@ var breakout = (function(){
 	var _bricks = null;
 	var _paddle = null;
 	var _ball = null;
-	var _imgBrick = new Image();
-	_imgBrick.src = "images/brick.png";
-	var _imgBg = new Image();
-	_imgBg.src = "images/bg.png";
-	var _imgBall = new Image();
-	_imgBall.src = "images/ball.png";
+	var opt = {};
+	
+	function createLayers(){
+		var container = $(opt.container);
+		
+		// Create a wrapper DIV
+		var wrapper = $("<div>")
+			.attr("class", "breakout")
+			.css({ "width": opt.width + 2 + "px", "height": opt.height + 2 + "px", "overflow": "hidden" })
+			.appendTo( container );
+	
+		// Creating Background layer
+		opt.background.el = $("<canvas>")
+			.attr("id", "boBackground")
+			.attr("width", opt.width)
+			.attr("height", opt.height)
+			.appendTo( wrapper );
+		opt.background.ctx = opt.background.el[0].getContext("2d");
+		
+		// Creating Score layer
+		opt.score.el = $("<canvas>")
+			.attr("id", "boScore")
+			.attr("width", opt.width)
+			.attr("height", opt.score.height)
+			.css("top", opt.height - opt.score.height + "px")
+			.appendTo( wrapper );
+		opt.score.ctx = opt.score.el[0].getContext("2d");
+		
+		// Creating Bricks layer
+		opt.bricks.el = $("<canvas>")
+			.attr("id", "boBricks")
+			.attr("width", opt.width)
+			.attr("height", opt.height)
+			.appendTo( wrapper );
+		opt.bricks.ctx = opt.bricks.el[0].getContext("2d");
+		
+		// Creating Paddle layer
+		opt.paddle.el = $("<canvas>")
+			.attr("id", "boPaddle")
+			.attr("width", opt.width)
+			.attr("height", opt.paddle.height)
+			.css("top", opt.height - opt.score.height - opt.paddle.height + "px")
+			.appendTo( wrapper );
+		opt.paddle.ctx = opt.paddle.el[0].getContext("2d");
+		
+		// Creating Ball layer
+		opt.ball.el = $("<canvas>")
+			.attr("id", "boBall")
+			.attr("width", opt.width)
+			.attr("height", opt.height - opt.score.height)
+			.appendTo( wrapper );
+		opt.ball.ctx = opt.ball.el[0].getContext("2d");
+		
+		// Calculate Brick width and height
+		opt.bricks.width  = Math.floor(opt.width / opt.bricks.cols);
+		opt.bricks.height = Math.floor(opt.bricks.width / 2);
+		
+		if ( opt.bricks.height * opt.bricks.rows > opt.height / 2 ){
+			opt.bricks.height = Math.floor(opt.height / (2 * opt.bricks.rows) );
+		}
+		
+		
+		// Create convenience variables
+		_cWidth 	= opt.width;
+		_cHeight 	= opt.height;
+		_score 		= opt.score;
+		_bricks 	= opt.bricks;
+		_paddle 	= opt.paddle;
+		_ball 		= opt.ball;
+		
+	}
 
 	return {
-		layers: [],
 		ballIntervalObj: null,
 		mouseInCanvas: false,
-		init: function(){
-			this.layers.add( "score", {
-				el: $("#c_score")[0],
-				ctx: $("#c_score")[0].getContext("2d"),
-				lives: 5,
-				height: 20,
-				fillStyle: "#0f0"
-			});
-			this.layers.add( "bricks", {
-				el: $("#c_bricks")[0],
-				ctx: $("#c_bricks")[0].getContext("2d"),
-				rows: 5,
-				cols: 5,
-				height: 30,
-				fillStyle: "#88f"
-			});
-			this.layers.add( "paddle", {
-				el: $("#c_paddle")[0],
-				ctx: $("#c_paddle")[0].getContext("2d"),
-				width: 100,
-				height: 10,
-				fillStyle: "#777"
-			});
-			this.layers.add( "ball", {
-				el: $("#c_ball")[0],
-				ctx: $("#c_ball")[0].getContext("2d"),
-				radius: 6,
-				speed: {x: 1, y: -1},
-				fillStyle: "#aaa"
-			});
+		init: function( options ){
+			opt = $.extend({
+				container: "#breakout",
+				width: 400,
+				height: 400,
+				background: {},
+				score: {
+					lives: 5,
+					height: 20,
+					fillStyle: "#0f0"
+				},
+				bricks: {
+					rows: 5,
+					cols: 10,
+					tilemap: [
+						[ 2, 0, 1, 0, 2, 0, 1, 0, 2, 0],
+						[ 2, 0, 1, 0, 2, 0, 1, 0, 2, 0],
+						[ 2, 0, 1, 0, 2, 0, 1, 0, 2, 0],
+						[ 2, 0, 1, 0, 2, 0, 1, 0, 2, 0],
+						[ 2, 0, 1, 0, 2, 0, 1, 0, 2, 0]
+					],
+					tilestyle: [
+						"images/oldbrick.png",
+						"images/brick.png",
+						"#00f"
+					]
+				},
+				paddle: {
+					width: 100,
+					height: 10,
+					fillStyle: "#777"
+				},
+				ball: {
+					radius: 6,
+					speed: {x: 1, y: -1},
+					fillstyle: "images/ball.png"
+				}
+			}, options);
 			
-			_cWidth  = $("#c_bricks").width();
-			_cHeight = $("#c_bricks").height();
-			
-			_score   = this.layers["score"];
-			_bricks  = this.layers["bricks"];
-			_paddle  = this.layers["paddle"];
-			_ball 	 = this.layers["ball"];
+			createLayers();
 			
 			this.initScore();
 			this.initBricks();
@@ -76,12 +142,10 @@ var breakout = (function(){
 		},
 		initScore: function(){
 			var x = 0;
-			var y = _cHeight - _score.height;
+			var y = 0;
 			var w = _cWidth;
 			var h = _score.height;
 
-			_score.ctx.drawImage(_imgBg,0,0,400,400);	// draw this somewhere else, maybe in its own layer, or have a smaller dirty rect when updating the score
-			
 			_score.ctx.beginPath();
 			_score.ctx.fillStyle = _score.fillStyle;
 				_score.ctx.fillRect( x, y, w, h );
@@ -94,41 +158,38 @@ var breakout = (function(){
 		updateScore: function(){
 		},
 		initBricks: function(){
-			var w = _bricks.width = Math.floor(_cWidth / _bricks.cols);
-			var h = _bricks.height = ( _bricks.height * _bricks.rows > Math.floor(_cHeight / 2) ) ? 
-							Math.floor(_cHeight / (2 * _bricks.rows)) : 
-							_bricks.height;
-			_bricks.tilemap = new Array(_bricks.rows);
+			var width  = _bricks.width  = Math.floor(opt.width / _bricks.cols);
+			var height = _bricks.height = Math.floor(width / 2);
+		
+			tilemap = _bricks.tilemap;
 			_bricks.tilecount = 0;
-			for ( var x = 0; x < _bricks.rows; x++ ){
-				_bricks.tilemap[x] = new Array(_bricks.cols);
-				for ( var y = 0; y < _bricks.cols; y++ ){
-					_bricks.tilemap[x][y] = 1;
-					_bricks.tilecount++;
-				}
-			}
-			this.drawBricks();
-		},
-		drawBricks: function(tilemap){
-			tilemap = tilemap || _bricks.tilemap;
 			
 			this.clear(_bricks.ctx);
 			_bricks.ctx.beginPath();
-			_bricks.ctx.fillStyle = _bricks.fillStyle;
-			for ( var x = 0; x < tilemap.length; x++ ){
-				for ( var y = 0; y < tilemap[x].length; y++ ){
-					if ( tilemap[x][y] == 1 ){
-						_bricks.ctx.drawImage(_imgBrick, y * _bricks.width, x * _bricks.height, _bricks.width - 1, _bricks.height - 1); // drawing brick from image
+			for ( var x = 0; x < _bricks.rows; x++ ){
+				if ( typeof(tilemap[x]) == "undefined" ) continue;
+				for ( var y = 0; y < _bricks.cols; y++ ){
+					if ( typeof(tilemap[x][y]) == "undefined" ) continue;
+					if ( tilemap[x][y] >= 1 ){
+						var fillstyle = _bricks.tilestyle[ tilemap[x][y] - 1 ];
+						if ( /^#([0-9a-fA-F]{3})([0-9a-fA-F]{3})?$/.test(fillstyle) ){ // Its a color code
+							_bricks.ctx.fillStyle = fillstyle;
+							_bricks.ctx.fillRect( y * width, x * height, width - 1, height - 1);
+						} else { // Its a file path. ASSUME. Have to put a regex for filenames.
+							var _imgBrick = new Image();
+							_imgBrick.src = fillstyle;
+							_bricks.ctx.drawImage(_imgBrick, y * width, x * height, width - 1, height - 1); // drawing brick from image
+						}
+						_bricks.tilecount++;
 					}
 				}
 			}
 			_bricks.ctx.closePath();
-			_bricks.ctx.fill();
 		},
 		initPaddle: function(){
 			var w = _paddle.width;
 			var h = _paddle.height;
-			var y = (_cHeight - _score.height) - h;
+			var y = 0;
 			var x = (_cWidth - w)/2;
 			_paddle.pos = { x: x, y: y };
 			this.drawPaddle();
@@ -145,7 +206,7 @@ var breakout = (function(){
 		},
 		initBall: function(){
 			var x = Math.floor(_cWidth / 2) - _ball.radius;
-			var y = _paddle.pos.y - (_ball.radius * 2);
+			var y = _ball.el.height() - _paddle.height - (_ball.radius * 2);
 			var w = _ball.radius * 2;
 			var h = w;
 			_ball.pos = { x: x, y: y };
@@ -154,12 +215,25 @@ var breakout = (function(){
 			this.drawBall();
 		},
 		drawBall: function(){
-			var x = _ball.pos.x;
-			var y = _ball.pos.y;
+			var x = _ball.pos.x + _ball.radius;
+			var y = _ball.pos.y + _ball.radius;
 			var r = _ball.radius;
+			var w = h = r * 2;
+			var fillstyle = _ball.fillstyle;
 			
 			this.clear(_ball.ctx);
-			_ball.ctx.drawImage(_imgBall, x, y, r*2, r*2);
+			_ball.ctx.beginPath();
+				if ( /^#([0-9a-fA-F]{3})([0-9a-fA-F]{3})?$/.test(fillstyle) ){ // Its a color code
+					_ball.ctx.fillStyle = fillstyle;
+					_ball.ctx.arc(x, y, r, 0, Math.PI*2, true);
+				} else { // Its a file path. ASSUME. Have to put a regex for filenames.
+					var _imgBall = new Image();
+					_imgBall.src = fillstyle;
+					_ball.ctx.drawImage(_imgBall, x - r, y - r, w, h); // drawing brick from image
+				}
+			_ball.ctx.closePath();
+			
+			_ball.ctx.fill();
 		},
 		moveBall: function(){
 			// Calculating the next frame coordinates according to current speed
@@ -178,11 +252,11 @@ var breakout = (function(){
 				speedX *= -1;
 			} // Left, Right walls
 			if ( y <= 0 ){ speedY *= -1; } // Top Wall
-			if ( y + h >= _paddle.pos.y){ // Paddle
+			if ( y + h >= _ball.el.height() - _paddle.height){ // Paddle
 				if ( x + r > _paddle.pos.x && x + r < _paddle.pos.x + _paddle.width ){ // Ball falls on paddle
 					speedX = 3*((x - (_paddle.pos.x + _paddle.width/2))/_paddle.width);
 					speedY *= -1;
-				} else if ( y + h >= _score.pos.y){ // Ball falls on floor
+				} else if ( y + h >= _ball.el.height()){ // Ball falls on floor
 					this.die();
 				}
 			}
@@ -209,12 +283,13 @@ var breakout = (function(){
 			} else if ( row_br != row_c ){
 				row = row_br;
 			}
-			if ( row && row-1 < _bricks.rows && col_c-1 < _bricks.cols && _bricks.tilemap[row-1][col_c-1] == 1 ){
+			if ( row && row-1 < _bricks.rows && col_c-1 < _bricks.cols && _bricks.tilemap[row-1][col_c-1] >= 1 ){
 				row -= 1;
 				col_c -= 1;
 				speedY *= -1;
 				_bricks.tilemap[row][col_c] = 0; // Updating tilemap
 				_bricks.tilecount--;
+				//console.log( _bricks.tilecount );
 				_bricks.ctx.clearRect( col_c * _bricks.width, row * _bricks.height, _bricks.width - 1, _bricks.height - 1); // Removing the brick
 			}
 			
@@ -223,12 +298,13 @@ var breakout = (function(){
 			} else if ( col_br != col_c ){
 				col = col_br;
 			}
-			if ( col && row_c-1 < _bricks.rows && col-1 < _bricks.cols && _bricks.tilemap[row_c-1][col-1] == 1 ){
+			if ( col && row_c-1 < _bricks.rows && col-1 < _bricks.cols && _bricks.tilemap[row_c-1][col-1] >= 1 ){
 				row_c -= 1;
 				col -= 1;
 				speedX *= -1;
 				_bricks.tilemap[row_c][col] = 0; // Updating tilemap
 				_bricks.tilecount--;
+				//console.log( _bricks.tilecount );
 				_bricks.ctx.clearRect( col * _bricks.width, row_c * _bricks.height, _bricks.width - 1, _bricks.height - 1); // Removing the brick
 			}
 			
@@ -275,7 +351,9 @@ var breakout = (function(){
 })();
 
 window.onload = function(){
-	breakout.init();
+	breakout.init({
+		container: "#breakout"
+	});
 };
 
 	
