@@ -14,7 +14,7 @@ var breakout = (function(){
 	
 	function createLayers(){
 		var container = $(opt.container);
-		
+
 		// Create a wrapper DIV
 		var wrapper = $("<div>")
 			.attr("class", "breakout")
