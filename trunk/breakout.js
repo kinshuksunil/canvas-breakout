@@ -182,7 +182,7 @@ var breakout = (function(){
 						} else { // Its a file path. ASSUME. Have to put a regex for filenames.
 							var _imgBrick = new Image();
 							_imgBrick.src = fillstyle;
-							console.info(fillstyle);
+							//console.info(fillstyle);
 							_bricks.ctx.drawImage(fillstyle, y * width, x * height, width - 1, height - 1); // drawing brick from image
 						}
 						_bricks.tilecount++;
