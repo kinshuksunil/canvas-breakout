@@ -12,6 +12,10 @@ var breakout = (function(){
 	var _ball = null;
 	var opt = {};
 	
+	function loadImage(img) {
+		tmp = new Image(); tmp.src=img; return tmp;
+	}
+	
 	function createLayers(){
 		var container = $(opt.container);
 
@@ -107,8 +111,8 @@ var breakout = (function(){
 						[ 2, 0, 1, 0, 2, 0, 1, 0, 2, 0]
 					],
 					tilestyle: [
-						"images/oldbrick.png",
-						"images/brick.png",
+						loadImage("images/oldbrick.png"),
+						loadImage("images/brick.png"),
 						"#00f"
 					]
 				},
@@ -178,7 +182,8 @@ var breakout = (function(){
 						} else { // Its a file path. ASSUME. Have to put a regex for filenames.
 							var _imgBrick = new Image();
 							_imgBrick.src = fillstyle;
-							_bricks.ctx.drawImage(_imgBrick, y * width, x * height, width - 1, height - 1); // drawing brick from image
+							console.info(fillstyle);
+							_bricks.ctx.drawImage(fillstyle, y * width, x * height, width - 1, height - 1); // drawing brick from image
 						}
 						_bricks.tilecount++;
 					}
